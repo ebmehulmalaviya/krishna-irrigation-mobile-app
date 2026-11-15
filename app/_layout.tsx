@@ -1,22 +1,21 @@
 import { useFonts } from 'expo-font';
-import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
+import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
+import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
 
 import { useColorScheme } from '@/components/useColorScheme';
+import { AppProvider } from '@/context/AppContext';
 
 export {
-  // Catch any errors thrown by the Layout component.
   ErrorBoundary,
 } from 'expo-router';
 
 export const unstable_settings = {
-  // Ensure that reloading on `/modal` keeps a back button present.
   anchor: '(tabs)',
 };
 
-// Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
@@ -24,7 +23,6 @@ export default function RootLayout() {
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
   });
 
-  // Expo Router uses Error Boundaries to catch errors in the navigation tree.
   useEffect(() => {
     if (error) throw error;
   }, [error]);
@@ -39,18 +37,70 @@ export default function RootLayout() {
     return null;
   }
 
-  return <RootLayoutNav />;
+  return (
+    <AppProvider>
+      <RootLayoutNav />
+    </AppProvider>
+  );
 }
 
 function RootLayoutNav() {
-  const colorScheme = useColorScheme();
+  const colorScheme = useColorScheme() ?? 'light';
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
+    <>
+      <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
+      <Stack
+        screenOptions={{
+          headerTintColor: '#15803d',
+          headerTitleStyle: {
+            fontWeight: '700',
+          },
+        }}
+      >
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
+        <Stack.Screen
+          name="category/[id]"
+          options={{
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="admin/add-product"
+          options={{
+            presentation: 'modal',
+            title: 'પ્રોડક્ટ મેનેજમેન્ટ',
+          }}
+        />
+        <Stack.Screen
+          name="admin/stock-in"
+          options={{
+            presentation: 'modal',
+            title: 'સ્ટોક ઇન / ખરીદી એન્ટ્રી',
+          }}
+        />
+        <Stack.Screen
+          name="admin/sale-out"
+          options={{
+            presentation: 'modal',
+            title: 'વેચાણ એન્ટ્રી / સ્ટોક આઉટ',
+          }}
+        />
+        <Stack.Screen
+          name="admin/categories"
+          options={{
+            presentation: 'modal',
+            title: 'કેટેગરી વ્યવસ્થાપન',
+          }}
+        />
+        <Stack.Screen
+          name="modal"
+          options={{
+            presentation: 'modal',
+            title: 'એડમિન લૉગિન / રોલ સ્વિચર',
+          }}
+        />
       </Stack>
-    </ThemeProvider>
+    </>
   );
 }
