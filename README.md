@@ -86,3 +86,4 @@ To connect your live Supabase cloud database:
    EXPO_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
    ```
 
+# krishna-irrigation-mobile-app
