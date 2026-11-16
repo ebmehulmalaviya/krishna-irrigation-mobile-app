@@ -62,14 +62,9 @@ Docs: https://docs.expo.dev/eas/index.md
   - Bold centered black text: `ALL RATE` / `TAX PAID RATE`.
   - 7 pagination dots indicator (`● · · · · · ·`).
 - **Category Grid (`components/CategoryGridCard.tsx`)**:
-  - 2-column cards with exact pastel background colors:
-    - `cat-valves`: `#bfe9e4` (`એગ્રીકલ્ચર વાલ્વ`)
-    - `cat-jhatka`: `#e3f4cb` (`એગ્રીકલ્ચર અને ઝટકા ફિટિંગ્સ`)
-    - `cat-drip`: `#fce1cc` (`ડ્રિપ ફિટિંગ્સ`)
-    - `cat-mini-sprinkler`: `#eedcfa` (`મીની સ્પ્રિંકલર ફિટિંગ્સ`)
-    - `cat-sprinkler`: `#cdebee` (`સ્પ્રિંકલર ફિટિંગ્સ`)
-    - `cat-rainpipe`: `#dff4cb` (`રેઇન પાઇપ ફિટિંગ્સ 40MM`)
-  - Center vector graphics or user-uploaded photos. Clean card without upload buttons.
+  - 2-column cards with pure white background (`#ffffff`), 1.5px border (`#e2e8f0`), 16px borderRadius, and soft shadow (updated per user request for clean modern look).
+  - Dedicated top framed showcase area with subtle pastel tint for high-contrast, centered photos or `IrrigationGraphic` vector clusters.
+  - Centered bold Gujarati category title at bottom. Clean card without upload buttons.
 - **Category & Rate Screen (`app/category/[id].tsx`)**:
   - Header: Circular solid dark green back button `<` (`#166534`, white icon), centered dark green title (e.g. `એગ્રીકલ્ચર વાલ્વ`).
   - Product Cards: 2px solid dark green border (`#166534`), white background.

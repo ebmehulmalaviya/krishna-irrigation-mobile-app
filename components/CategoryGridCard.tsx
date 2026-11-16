@@ -12,21 +12,25 @@ export const CategoryGridCard: React.FC<CategoryGridCardProps> = ({
   category,
   onPress,
 }) => {
-  const bgColor = category.color || '#bfe9e4';
+  const accentColor = category.color || '#bfe9e4';
 
   return (
     <Pressable
       style={({ pressed }) => [
         styles.cardContainer,
         {
-          backgroundColor: bgColor,
           transform: [{ scale: pressed ? 0.97 : 1 }],
         },
       ]}
       onPress={onPress}
     >
-      {/* Center Image / Vector Graphic Cluster (Screenshot 1) */}
-      <View style={styles.graphicArea}>
+      {/* Top Image / Graphic Showcase Frame */}
+      <View
+        style={[
+          styles.graphicFrame,
+          { backgroundColor: accentColor ? `${accentColor}28` : '#f8fafc' },
+        ]}
+      >
         {category.image_url ? (
           <Image
             source={{ uri: category.image_url }}
@@ -36,13 +40,13 @@ export const CategoryGridCard: React.FC<CategoryGridCardProps> = ({
         ) : (
           <IrrigationGraphic
             type={(category.graphic_type as any) || 'cat-valves'}
-            width={110}
-            height={75}
+            width={112}
+            height={78}
           />
         )}
       </View>
 
-      {/* Bottom Category Name in Gujarati (Screenshot 1) */}
+      {/* Bottom Category Name in Gujarati */}
       <View style={styles.titleArea}>
         <Text style={styles.categoryTitle} numberOfLines={2}>
           {category.name}
@@ -56,33 +60,39 @@ const styles = StyleSheet.create({
   cardContainer: {
     flex: 1,
     margin: 6,
-    height: 146,
-    borderRadius: 14,
-    padding: 10,
+    height: 156,
+    borderRadius: 16,
+    padding: 8,
+    backgroundColor: '#ffffff', // Pure white card background
+    borderWidth: 1.5,
+    borderColor: '#e2e8f0',
     justifyContent: 'space-between',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOpacity: 0.04,
-    shadowRadius: 3,
+    shadowColor: '#0f172a',
+    shadowOpacity: 0.05,
+    shadowRadius: 5,
     shadowOffset: { width: 0, height: 2 },
     elevation: 2,
   },
-  graphicArea: {
-    flex: 1,
+  graphicFrame: {
     width: '100%',
+    height: 98,
+    borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingTop: 6,
+    overflow: 'hidden',
   },
   imageAsset: {
-    width: 100,
-    height: 70,
+    width: '92%',
+    height: '92%',
   },
   titleArea: {
     width: '100%',
-    paddingBottom: 4,
-    alignItems: 'center',
+    flex: 1,
     justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 4,
+    paddingTop: 4,
   },
   categoryTitle: {
     fontSize: 13,

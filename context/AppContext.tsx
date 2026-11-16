@@ -153,11 +153,35 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             .from('products')
             .select('*, variants:product_variants(*)');
 
+          const { data: purchData } = await supabase
+            .from('purchases')
+            .select('*, items:purchase_items(*)')
+            .order('created_at', { ascending: false });
+
+          const { data: salesData } = await supabase
+            .from('sales')
+            .select('*, items:sale_items(*)')
+            .order('created_at', { ascending: false });
+
+          const { data: transData } = await supabase
+            .from('stock_transactions')
+            .select('*')
+            .order('created_at', { ascending: false });
+
           if (catData && catData.length > 0) {
             setCategories(catData as Category[]);
           }
           if (prodData && prodData.length > 0) {
             setProducts(prodData as Product[]);
+          }
+          if (purchData && purchData.length > 0) {
+            setPurchases(purchData as Purchase[]);
+          }
+          if (salesData && salesData.length > 0) {
+            setSales(salesData as Sale[]);
+          }
+          if (transData && transData.length > 0) {
+            setStockTransactions(transData as StockTransaction[]);
           }
         } catch (supaErr) {
           console.warn('Supabase fetch error, fallback to local', supaErr);
@@ -284,15 +308,22 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Category Actions
   const addCategory = async (categoryData: Omit<Category, 'id'>): Promise<Category> => {
-    const newCat: Category = {
-      ...categoryData,
-      id: `cat-${Date.now()}`,
-      created_at: new Date().toISOString(),
-    };
+    let newCatId = `cat-${Date.now()}`;
 
     if (isSupabaseConfigured()) {
       try {
-        const { data, error } = await supabase.from('categories').insert(categoryData).select().single();
+        const payload: any = {
+          name: categoryData.name,
+          name_en: categoryData.name_en || null,
+          image_url: categoryData.image_url || null,
+          graphic_type: categoryData.graphic_type || null,
+          parent_id: categoryData.parent_id || null,
+          display_order: categoryData.display_order ?? categories.length + 1,
+          is_active: categoryData.is_active ?? true,
+          color: categoryData.color || null,
+          icon: categoryData.icon || null,
+        };
+        const { data, error } = await supabase.from('categories').insert(payload).select().single();
         if (!error && data) {
           const updated = [...categories, data as Category];
           await persistCategories(updated);
@@ -302,6 +333,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         console.warn('Supabase addCategory error', err);
       }
     }
+
+    const newCat: Category = {
+      ...categoryData,
+      id: newCatId,
+      created_at: new Date().toISOString(),
+    };
 
     const updated = [...categories, newCat];
     await persistCategories(updated);
@@ -314,7 +351,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
     if (isSupabaseConfigured()) {
       try {
-        await supabase.from('categories').update(updates).eq('id', id);
+        const { children, id: _id, created_at: _ca, ...validUpdates } = updates as any;
+        if (Object.keys(validUpdates).length > 0) {
+          await supabase.from('categories').update(validUpdates).eq('id', id);
+        }
       } catch (err) {
         console.warn('Supabase updateCategory error', err);
       }
@@ -438,9 +478,40 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     productId: string,
     variantData: Omit<ProductVariant, 'id' | 'product_id'>
   ): Promise<ProductVariant> => {
+    let newVarId = `var-${Date.now()}`;
+
+    if (isSupabaseConfigured()) {
+      try {
+        const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(productId);
+        if (isUuid) {
+          const { data: supaVar } = await supabase
+            .from('product_variants')
+            .insert({
+              product_id: productId,
+              size: variantData.size,
+              purchase_rate: variantData.purchase_rate,
+              selling_rate: variantData.selling_rate,
+              opening_stock: variantData.opening_stock,
+              current_stock: variantData.current_stock,
+              low_stock_limit: variantData.low_stock_limit,
+              pack_text: variantData.pack_text || 'જથ્થો',
+              is_active: variantData.is_active ?? true,
+            })
+            .select()
+            .single();
+
+          if (supaVar) {
+            newVarId = supaVar.id;
+          }
+        }
+      } catch (err) {
+        console.warn('Supabase addVariant error', err);
+      }
+    }
+
     const newVariant: ProductVariant = {
       ...variantData,
-      id: `var-${Date.now()}`,
+      id: newVarId,
       product_id: productId,
     };
 
@@ -464,6 +535,17 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       variants: p.variants.map((v) => (v.id === variantId ? { ...v, ...updates } : v)),
     }));
     await persistProducts(updated);
+
+    if (isSupabaseConfigured()) {
+      try {
+        const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(variantId);
+        if (isUuid) {
+          await supabase.from('product_variants').update(updates).eq('id', variantId);
+        }
+      } catch (err) {
+        console.warn('Supabase updateVariant error', err);
+      }
+    }
   };
 
   const deleteVariant = async (variantId: string): Promise<void> => {
@@ -472,6 +554,17 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       variants: p.variants.filter((v) => v.id !== variantId),
     }));
     await persistProducts(updated);
+
+    if (isSupabaseConfigured()) {
+      try {
+        const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(variantId);
+        if (isUuid) {
+          await supabase.from('product_variants').delete().eq('id', variantId);
+        }
+      } catch (err) {
+        console.warn('Supabase deleteVariant error', err);
+      }
+    }
   };
 
   // Stock In / Purchase Management
@@ -492,7 +585,56 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
 
     const totalAmount = quantity * purchaseRate;
-    const purchaseId = `purch-${Date.now()}`;
+    let purchaseId = `purch-${Date.now()}`;
+
+    // Cloud Sync: Persist Purchase, Items, Stock & Audit to Supabase
+    if (isSupabaseConfigured()) {
+      try {
+        const { data: supaPurch } = await supabase
+          .from('purchases')
+          .insert({
+            supplier_name: supplierName || 'સામાન્ય સપ્લાયર',
+            purchase_date: new Date().toISOString().split('T')[0],
+            total_amount: totalAmount,
+            notes: notes || null,
+          })
+          .select()
+          .single();
+
+        if (supaPurch) {
+          purchaseId = supaPurch.id;
+
+          const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(variantId);
+          if (isUuid) {
+            await supabase.from('purchase_items').insert({
+              purchase_id: supaPurch.id,
+              variant_id: variantId,
+              quantity,
+              purchase_rate: purchaseRate,
+              total_amount: totalAmount,
+            });
+
+            await supabase
+              .from('product_variants')
+              .update({
+                current_stock: variant.current_stock + quantity,
+                purchase_rate: purchaseRate,
+              })
+              .eq('id', variantId);
+
+            await supabase.from('stock_transactions').insert({
+              variant_id: variantId,
+              transaction_type: 'purchase',
+              quantity,
+              reference_id: supaPurch.id,
+              notes: notes || `ખરીદી ઇનવોઇસ: ${supplierName || ''}`,
+            });
+          }
+        }
+      } catch (err) {
+        console.warn('Supabase recordStockIn error', err);
+      }
+    }
 
     // 1. Create Purchase record
     const newPurchase: Purchase = {
@@ -583,7 +725,55 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
 
     const totalAmount = quantity * sellingRate;
-    const saleId = `sale-${Date.now()}`;
+    let saleId = `sale-${Date.now()}`;
+
+    // Cloud Sync: Persist Sale, Items, Stock & Audit to Supabase
+    if (isSupabaseConfigured()) {
+      try {
+        const { data: supaSale } = await supabase
+          .from('sales')
+          .insert({
+            customer_name: customerName || 'રોકડ ગ્રાહક',
+            sale_date: new Date().toISOString().split('T')[0],
+            total_amount: totalAmount,
+            notes: notes || null,
+          })
+          .select()
+          .single();
+
+        if (supaSale) {
+          saleId = supaSale.id;
+
+          const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(variantId);
+          if (isUuid) {
+            await supabase.from('sale_items').insert({
+              sale_id: supaSale.id,
+              variant_id: variantId,
+              quantity,
+              selling_rate: sellingRate,
+              total_amount: totalAmount,
+            });
+
+            await supabase
+              .from('product_variants')
+              .update({
+                current_stock: variant.current_stock - quantity,
+              })
+              .eq('id', variantId);
+
+            await supabase.from('stock_transactions').insert({
+              variant_id: variantId,
+              transaction_type: 'sale',
+              quantity: -quantity,
+              reference_id: supaSale.id,
+              notes: notes || `વેચાણ: ${customerName || ''}`,
+            });
+          }
+        }
+      } catch (err) {
+        console.warn('Supabase recordSale error', err);
+      }
+    }
 
     // 1. Create Sale record
     const newSale: Sale = {
@@ -657,6 +847,27 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     if (!product || !variant) return;
 
     const newStock = Math.max(0, variant.current_stock + quantityDelta);
+
+    if (isSupabaseConfigured()) {
+      try {
+        const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(variantId);
+        if (isUuid) {
+          await supabase
+            .from('product_variants')
+            .update({ current_stock: newStock })
+            .eq('id', variantId);
+
+          await supabase.from('stock_transactions').insert({
+            variant_id: variantId,
+            transaction_type: 'adjustment',
+            quantity: quantityDelta,
+            notes: `સ્ટોક એડજસ્ટમેન્ટ: ${notes}`,
+          });
+        }
+      } catch (err) {
+        console.warn('Supabase adjustStock error', err);
+      }
+    }
 
     const updatedProducts = products.map((p) => {
       if (p.id === product.id) {
