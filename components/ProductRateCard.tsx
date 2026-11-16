@@ -1,11 +1,10 @@
-import React from 'react';
-import { StyleSheet, View, Text, Pressable, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { Product } from '../types';
+import React from 'react';
+import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import Colors from '../constants/Colors';
-import { useColorScheme } from './useColorScheme';
+import { Product } from '../types';
 import { IrrigationGraphic } from './IrrigationGraphic';
-
+import { useColorScheme } from './useColorScheme';
 interface ProductRateCardProps {
   product: Product;
   isAdmin?: boolean;

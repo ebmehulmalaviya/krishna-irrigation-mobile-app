@@ -57,7 +57,7 @@ Docs: https://docs.expo.dev/eas/index.md
   - Background: Pure white `#ffffff`.
   - Left: Orange rounded-rectangle menu button (`#fff7ed` background, `#fed7aa` border, `#f97316` 3-bar menu lines).
   - Center: Bold centered dark green brand title `KRISHNA IRRIGATION` (`#166534`, 18px, bold letter-spacing; Gujarati subtitle and "ભાષા બદલો" removed per user request for clean, modern look).
-  - Right: Round orange search button and notification bell (`#fff7ed` background, `#f97316` icon).
+  - Right: Round orange search button (`#fff7ed` background, `#f97316` icon, 42x42px, perfectly symmetrical to left menu button; bell icon removed per user request).
 - **Home Banner / Carousel**:
   - Bold centered black text: `ALL RATE` / `TAX PAID RATE`.
   - 7 pagination dots indicator (`● · · · · · ·`).

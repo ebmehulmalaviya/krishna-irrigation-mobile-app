@@ -63,7 +63,7 @@ export default function HomeScreen() {
       <StatusBar style="dark" />
       <View style={[styles.statusBarCover, { height: topInset }]} />
 
-      {/* 2. Top Header - Clean, Premium & Polished */}
+      {/* 2. Top Header - Clean, Premium & Perfectly Balanced */}
       <View style={styles.header}>
         {/* Left: Orange Rounded Menu Icon */}
         <Pressable
@@ -75,16 +75,17 @@ export default function HomeScreen() {
             <View style={styles.menuLine} />
             <View style={styles.menuLine} />
           </View>
+          {role === 'admin' && <View style={styles.adminIndicatorDot} />}
         </Pressable>
 
-        {/* Center: Clean Brand Title */}
+        {/* Center: Perfectly Centered Brand Title */}
         <View style={styles.headerCenter}>
           <Text style={styles.headerTitle} numberOfLines={1}>
             KRISHNA IRRIGATION
           </Text>
         </View>
 
-        {/* Right: Search & Notification Buttons */}
+        {/* Right: Round Orange Search Button (Symmetrical to Menu Button) */}
         <View style={styles.headerRight}>
           <Pressable
             style={({ pressed }) => [
@@ -96,17 +97,9 @@ export default function HomeScreen() {
           >
             <Ionicons
               name={showSearch ? 'close' : 'search'}
-              size={18}
+              size={19}
               color={showSearch ? '#ffffff' : '#f97316'}
             />
-          </Pressable>
-
-          <Pressable
-            style={({ pressed }) => [styles.orangeRoundBtn, pressed && { opacity: 0.8 }]}
-            onPress={() => router.push('/modal' as any)}
-          >
-            <Ionicons name="notifications" size={18} color="#f97316" />
-            {role === 'admin' && <View style={styles.adminIndicatorDot} />}
           </Pressable>
         </View>
       </View>
@@ -195,24 +188,25 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#f1f5f9',
     shadowColor: '#0f172a',
-    shadowOpacity: 0.04,
-    shadowRadius: 4,
+    shadowOpacity: 0.05,
+    shadowRadius: 5,
     shadowOffset: { width: 0, height: 2 },
-    elevation: 2,
+    elevation: 3,
   },
   orangeMenuBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 10,
+    width: 42,
+    height: 42,
+    borderRadius: 12,
     backgroundColor: '#fff7ed',
     borderWidth: 1.5,
     borderColor: '#fed7aa',
     alignItems: 'center',
     justifyContent: 'center',
+    position: 'relative',
   },
   menuLinesBox: {
-    width: 19,
-    gap: 3.5,
+    width: 20,
+    gap: 4,
   },
   menuLine: {
     height: 2.5,
@@ -226,21 +220,21 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
   },
   headerTitle: {
-    fontSize: 18,
+    fontSize: 18.5,
     fontWeight: '900',
     color: '#166534', // Brand deep green
     letterSpacing: 1.2,
     textAlign: 'center',
   },
   headerRight: {
-    flexDirection: 'row',
+    width: 42,
     alignItems: 'center',
-    gap: 8,
+    justifyContent: 'center',
   },
   orangeRoundBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 42,
+    height: 42,
+    borderRadius: 21,
     backgroundColor: '#fff7ed',
     borderWidth: 1.5,
     borderColor: '#fed7aa',
@@ -254,11 +248,11 @@ const styles = StyleSheet.create({
   },
   adminIndicatorDot: {
     position: 'absolute',
-    top: 6,
-    right: 7,
-    width: 8,
-    height: 8,
-    borderRadius: 4,
+    top: 4,
+    right: 4,
+    width: 9,
+    height: 9,
+    borderRadius: 4.5,
     backgroundColor: '#16a34a',
     borderWidth: 1.5,
     borderColor: '#ffffff',
